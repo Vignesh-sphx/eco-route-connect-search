@@ -20,12 +20,14 @@ import {
 } from "@/components/ui/card";
 import { useState } from "react";
 import { Map as MapIcon, Navigation, Route } from "lucide-react";
+import RouteMap from "@/components/RouteMap";
 
 const RouteOptimizer = () => {
   const [start, setStart] = useState("");
   const [destination, setDestination] = useState("");
   const [transportMode, setTransportMode] = useState("car");
   const [hasCalculated, setHasCalculated] = useState(false);
+  const [selectedRouteId, setSelectedRouteId] = useState<number | undefined>(undefined);
   
   // Mock route data
   const routes = [
@@ -58,7 +60,13 @@ const RouteOptimizer = () => {
   const handleCalculateRoute = () => {
     if (start && destination) {
       setHasCalculated(true);
+      // Default to eco-friendly route
+      setSelectedRouteId(2);
     }
+  };
+
+  const handleSelectRoute = (routeId: number) => {
+    setSelectedRouteId(routeId);
   };
 
   return (
@@ -160,21 +168,23 @@ const RouteOptimizer = () => {
           <div className="lg:col-span-2 space-y-6">
             {hasCalculated ? (
               <>
-                <div className="border rounded-lg bg-muted/30 h-[300px] flex items-center justify-center">
-                  <div className="text-center text-muted-foreground">
-                    <Route className="h-12 w-12 mx-auto mb-2" />
-                    <p className="font-medium">Map view would be displayed here</p>
-                    <p className="text-xs max-w-[250px] mx-auto mt-1">
-                      In a real application, this would show an interactive map with the route
-                    </p>
-                  </div>
+                <div className="rounded-lg overflow-hidden">
+                  <RouteMap 
+                    start={start}
+                    destination={destination}
+                    routeId={selectedRouteId}
+                    isVisible={hasCalculated}
+                  />
                 </div>
 
                 <div className="space-y-4">
                   <h2 className="text-xl font-semibold">Available Routes</h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {routes.map((route) => (
-                      <Card key={route.id} className={route.id === 2 ? "border-primary border-2" : ""}>
+                      <Card 
+                        key={route.id} 
+                        className={route.id === selectedRouteId ? "border-primary border-2" : ""}
+                      >
                         <CardHeader className="pb-2">
                           <div className="flex items-center justify-between">
                             <CardTitle className="text-md">{route.name}</CardTitle>
@@ -207,9 +217,10 @@ const RouteOptimizer = () => {
                               </span>
                             </div>
                             <Button 
-                              variant={route.id === 2 ? "default" : "outline"}
+                              variant={route.id === selectedRouteId ? "default" : "outline"}
                               size="sm" 
                               className="w-full mt-2"
+                              onClick={() => handleSelectRoute(route.id)}
                             >
                               Select Route
                             </Button>
