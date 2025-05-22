@@ -1,3 +1,4 @@
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,20 @@ const RouteOptimizer = () => {
   const [transportMode, setTransportMode] = useState("car");
   const [hasCalculated, setHasCalculated] = useState(false);
   const [selectedRouteId, setSelectedRouteId] = useState<number | undefined>(undefined);
+  
+  // Available cities for demo
+  const cities = [
+    "New York",
+    "Chicago",
+    "Los Angeles",
+    "Miami",
+    "Seattle",
+    "Austin",
+    "Boston",
+    "Denver",
+    "San Francisco",
+    "Washington DC"
+  ];
   
   // Mock route data
   const routes = [
@@ -68,6 +83,31 @@ const RouteOptimizer = () => {
     setSelectedRouteId(routeId);
   };
 
+  // Helper for city selection dropdowns
+  const CityDropdown = ({ 
+    label, 
+    value, 
+    onChange 
+  }: { 
+    label: string; 
+    value: string; 
+    onChange: (value: string) => void 
+  }) => (
+    <div className="space-y-2">
+      <Label htmlFor={label}>{label}</Label>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger id={label}>
+          <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
+        </SelectTrigger>
+        <SelectContent>
+          {cities.map((city) => (
+            <SelectItem key={city} value={city}>{city}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -88,24 +128,16 @@ const RouteOptimizer = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="start">Start Location</Label>
-                    <Input 
-                      id="start" 
-                      placeholder="Enter start location" 
-                      value={start}
-                      onChange={(e) => setStart(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="destination">Destination</Label>
-                    <Input 
-                      id="destination" 
-                      placeholder="Enter destination" 
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                    />
-                  </div>
+                  <CityDropdown 
+                    label="Start Location"
+                    value={start}
+                    onChange={setStart}
+                  />
+                  <CityDropdown 
+                    label="Destination"
+                    value={destination}
+                    onChange={setDestination}
+                  />
                   <div className="space-y-2">
                     <Label htmlFor="transport">Transportation Mode</Label>
                     <Select value={transportMode} onValueChange={setTransportMode}>
@@ -236,14 +268,14 @@ const RouteOptimizer = () => {
                   <Navigation className="h-16 w-16 mx-auto mb-4 text-primary/50" />
                   <h2 className="text-xl font-semibold mb-2">Start Planning Your Route</h2>
                   <p className="text-muted-foreground mb-6">
-                    Enter your start and destination points to find the most eco-friendly routes
+                    Select your start and destination cities to find the most eco-friendly routes
                     with detailed carbon emission information.
                   </p>
                   <div className="flex gap-2 justify-center">
                     <Button variant="outline">See Example</Button>
                     <Button onClick={() => {
-                      setStart("123 Main St");
-                      setDestination("456 Business Ave");
+                      setStart("New York");
+                      setDestination("Boston");
                     }}>
                       Quick Demo
                     </Button>
