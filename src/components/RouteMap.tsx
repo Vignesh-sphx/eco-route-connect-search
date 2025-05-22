@@ -2,9 +2,6 @@
 import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { useState } from 'react';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
 
 interface RouteMapProps {
   start: string;
@@ -13,17 +10,18 @@ interface RouteMapProps {
   isVisible: boolean;
 }
 
+// Demo token for educational purposes only
+const DEMO_MAPBOX_TOKEN = 'pk.eyJ1IjoiZGVtby11c2VyIiwiYSI6ImNrbmhucno5dzBwNWgycXBmMXpld3FrdWEifQ.iBg0GI6-pYZfJJU-OZj0Pg';
+
 const RouteMap = ({ start, destination, routeId, isVisible }: RouteMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState('');
-  const [tokenSubmitted, setTokenSubmitted] = useState(false);
 
   useEffect(() => {
-    if (!mapContainer.current || !isVisible || !tokenSubmitted || !mapboxToken) return;
+    if (!mapContainer.current || !isVisible) return;
 
-    // Initialize the map
-    mapboxgl.accessToken = mapboxToken;
+    // Initialize the map with the demo token
+    mapboxgl.accessToken = DEMO_MAPBOX_TOKEN;
     
     if (map.current) return;
     
@@ -45,11 +43,11 @@ const RouteMap = ({ start, destination, routeId, isVisible }: RouteMapProps) => 
       map.current?.remove();
       map.current = null;
     };
-  }, [isVisible, tokenSubmitted, mapboxToken]);
+  }, [isVisible]);
 
   // Effect to handle route display when start, destination, or routeId changes
   useEffect(() => {
-    if (!map.current || !tokenSubmitted || !start || !destination) return;
+    if (!map.current || !start || !destination) return;
     
     // This would typically call an API to get the route
     // For demo purposes, we'll create mock routes
@@ -57,7 +55,7 @@ const RouteMap = ({ start, destination, routeId, isVisible }: RouteMapProps) => 
     // Mock route coordinates based on routeId
     const getRouteCoordinates = () => {
       // Starting with a base route
-      const baseRoute = [
+      const baseRoute: [number, number][] = [
         [-74.006, 40.7128], // NYC
         [-74.01, 40.72],
         [-74.02, 40.73],
@@ -74,7 +72,7 @@ const RouteMap = ({ start, destination, routeId, isVisible }: RouteMapProps) => 
           [-74.025, 40.725],
           [-74.035, 40.735],
           [-74.04, 40.74],
-        ];
+        ] as [number, number][];
       } else if (routeId === 3) {
         // Scenic route (more waypoints)
         return [
@@ -86,7 +84,7 @@ const RouteMap = ({ start, destination, routeId, isVisible }: RouteMapProps) => 
           [-74.03, 40.735],
           [-74.035, 40.738],
           [-74.04, 40.74],
-        ];
+        ] as [number, number][];
       }
       
       return baseRoute;
@@ -163,37 +161,14 @@ const RouteMap = ({ start, destination, routeId, isVisible }: RouteMapProps) => 
         }
       });
     }
-  }, [start, destination, routeId, tokenSubmitted]);
-
-  if (!tokenSubmitted) {
-    return (
-      <div className="p-4 bg-muted/30 rounded-lg border">
-        <div className="mb-4">
-          <p className="mb-2 text-sm text-muted-foreground">Enter your Mapbox public token to display the route map</p>
-          <p className="mb-4 text-xs text-muted-foreground">You can get a token at <a href="https://mapbox.com" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">mapbox.com</a></p>
-          <div className="flex gap-2">
-            <Input 
-              type="text" 
-              placeholder="Enter Mapbox token" 
-              value={mapboxToken}
-              onChange={(e) => setMapboxToken(e.target.value)}
-              className="flex-1"
-            />
-            <Button 
-              onClick={() => setTokenSubmitted(true)} 
-              disabled={!mapboxToken}
-            >
-              Submit
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  }, [start, destination, routeId]);
 
   return (
     <div className="relative h-[400px] border rounded-lg overflow-hidden">
       <div ref={mapContainer} className="absolute inset-0" />
+      <div className="absolute top-2 left-2 bg-black/10 text-xs text-white px-2 py-1 rounded">
+        Demo Map (Simulated Routes)
+      </div>
     </div>
   );
 };
